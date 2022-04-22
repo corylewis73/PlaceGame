@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="425dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.339">
+
+        <Button
+            android:id="@+id/button77"
+            style="@style/gridButton"
+            app:layout_column="7"
+            app:layout_row="7" />
+
+        <Button
+            android:id="@+id/button76"
+            style="@style/gridButton"
+            app:layout_column="6"
+            app:layout_row="7" />
+
+        <Button
+            android:id="@+id/button75"
+            style="@style/gridButton"
+            app:layout_column="5"
+            app:layout_row="7" />
+
+        <Button
+            android:id="@+id/button74"
+            style="@style/gridButton"
+            app:layout_column="4"
+            app:layout_row="7" />
+
+        <Button
+            android:id="@+id/button73"
+            style="@style/gridButton"
+            app:layout_column="3"
+            app:layout_row="7" />
+
+        <Button
+            android:id="@+id/button72"
+            style="@style/gridButton"
+            app:layout_column="2"
+            app:layout_row="7" />
+
+        <Button
+            android:id="@+id/button71"
+            style="@style/gridButton"
+            app:layout_column="1"
+            app:layout_row="7" />
+
+        <Button
+            android:id="@+id/button70"
+            style="@style/gridButton"
+            app:layout_column="0"
+            app:layout_row="7" />
+
+        <Button
+            android:id="@+id/button67"
+            style="@style/gridButton"
+            app:layout_column="7"
+            app:layout_row="6" />
+
+        <Button
+            android:id="@+id/button66"
+            style="@style/gridButton"
+            app:layout_column="6"
+            app:layout_row="6" />
+
+        <Button
+            android:id="@+id/button65"
+            style="@style/gridButton"
+            app:layout_column="5"
+            app:layout_row="6" />
+
+        <Button
+            android:id="@+id/button64"
+            style="@style/gridButton"
+            app:layout_column="4"
+            app:layout_row="6" />
+
+        <Button
+            android:id="@+id/button63"
+            style="@style/gridButton"
+            app:layout_column="3"
+            app:layout_row="6" />
+
+        <Button
+            android:id="@+id/button62"
+            style="@style/gridButton"
+            app:layout_column="2"
+            app:layout_row="6" />
+
+        <Button
+            android:id="@+id/button61"
+            style="@style/gridButton"
+            app:layout_column="1"
+            app:layout_row="6" />
+
+        <Button
+            android:id="@+id/button60"
+            style="@style/gridButton"
+            app:layout_column="0"
+            app:layout_row="6" />
+
+        <Button
+            android:id="@+id/button57"
+            style="@style/gridButton"
+            app:layout_column="7"
+            app:layout_row="5" />
+
+        <Button
+            android:id="@+id/button56"
+            style="@style/gridButton"
+            app:layout_column="6"
+            app:layout_row="5" />
+
+        <Button
+            android:id="@+id/button55"
+            style="@style/gridButton"
+            app:layout_column="5"
+            app:layout_row="5" />
+
+        <Button
+            android:id="@+id/button54"
+            style="@style/gridButton"
+            app:layout_column="4"
+            app:layout_row="5" />
+
+        <Button
+            android:id="@+id/button53"
+            style="@style/gridButton"
+            app:layout_column="3"
+            app:layout_row="5" />
+
+        <Button
+            android:id="@+id/button52"
+            style="@style/gridButton"
+            app:layout_column="2"
+            app:layout_row="5" />
+
+        <Button
+            android:id="@+id/button51"
+            style="@style/gridButton"
+            app:layout_column="1"
+            app:layout_row="5" />
+
+        <Button
+            android:id="@+id/button50"
+            style="@style/gridButton"
+            app:layout_column="0"
+            app:layout_row="5" />
+
+        <Button
+            android:id="@+id/button47"
+            style="@style/gridButton"
+            app:layout_column="7"
+            app:layout_row="4" />
+
+        <Button
+            android:id="@+id/button46"
+            style="@style/gridButton"
+            app:layout_column="6"
+            app:layout_row="4" />
+
+        <Button
+            android:id="@+id/button45"
+            style="@style/gridButton"
+            app:layout_column="5"
+            app:layout_row="4" />
+
+        <Button
+            android:id="@+id/button44"
+            style="@style/gridButton"
+            app:layout_column="4"
+            app:layout_row="4" />
+
+        <Button
+            android:id="@+id/button43"
+            style="@style/gridButton"
+            app:layout_column="3"
+            app:layout_row="4" />
+
+        <Button
+            android:id="@+id/button42"
+            style="@style/gridButton"
+            app:layout_column="2"
+            app:layout_row="4" />
+
+        <Button
+            android:id="@+id/button41"
+            style="@style/gridButton"
+            app:layout_column="1"
+            app:layout_row="4" />
+
+        <Button
+            android:id="@+id/button40"
+            style="@style/gridButton"
+            app:layout_column="0"
+            app:layout_row="4" />
+
+        <Button
+            android:id="@+id/button37"
+            style="@style/gridButton"
+            app:layout_column="7"
+            app:layout_row="3" />
+
+        <Button
+            android:id="@+id/button36"
+            style="@style/gridButton"
+            app:layout_column="6"
+            app:layout_row="3" />
+
+        <Button
+            android:id="@+id/button35"
+            style="@style/gridButton"
+            app:layout_column="5"
+            app:layout_row="3" />
+
+        <Button
+            android:id="@+id/button34"
+            style="@style/gridButton"
+            app:layout_column="4"
+            app:layout_row="3" />
+
+        <Button
+            android:id="@+id/button33"
+            style="@style/gridButton"
+            app:layout_column="3"
+            app:layout_row="3" />
+
+        <Button
+            android:id="@+id/button32"
+            style="@style/gridButton"
+            app:layout_column="2"
+            app:layout_row="3" />
+
+        <Button
+            android:id="@+id/button31"
+            style="@style/gridButton"
+            app:layout_column="1"
+            app:layout_row="3" />
+
+        <Button
+            android:id="@+id/button30"
+            style="@style/gridButton"
+            app:layout_column="0"
+            app:layout_row="3" />
+
+        <Button
+            android:id="@+id/button27"
+            style="@style/gridButton"
+            app:layout_column="7"
+            app:layout_row="2" />
+
+        <Button
+            android:id="@+id/button26"
+            style="@style/gridButton"
+            app:layout_column="6"
+            app:layout_row="2" />
+
+        <Button
+            android:id="@+id/button25"
+            style="@style/gridButton"
+            app:layout_column="5"
+            app:layout_row="2" />
+
+        <Button
+            android:id="@+id/button24"
+            style="@style/gridButton"
+            app:layout_column="4"
+            app:layout_row="2" />
+
+        <Button
+            android:id="@+id/button23"
+            style="@style/gridButton"
+            app:layout_column="3"
+            app:layout_row="2" />
+
+        <Button
+            android:id="@+id/button22"
+            style="@style/gridButton"
+            app:layout_column="2"
+            app:layout_row="2" />
+
+        <Button
+            android:id="@+id/button21"
+            style="@style/gridButton"
+            app:layout_column="1"
+            app:layout_row="2" />
+
+        <Button
+            android:id="@+id/button20"
+            style="@style/gridButton"
+            app:layout_column="0"
+            app:layout_row="2" />
+
+        <Button
+            android:id="@+id/button17"
+            style="@style/gridButton"
+            app:layout_column="7"
+            app:layout_row="1" />
+
+        <Button
+            android:id="@+id/button16"
+            style="@style/gridButton"
+            app:layout_column="6"
+            app:layout_row="1" />
+
+        <Button
+            android:id="@+id/button15"
+            style="@style/gridButton"
+            app:layout_column="5"
+            app:layout_row="1" />
+
+        <Button
+            android:id="@+id/button14"
+            style="@style/gridButton"
+            app:layout_column="4"
+            app:layout_row="1" />
+
+        <Button
+            android:id="@+id/button13"
+            style="@style/gridButton"
+            app:layout_column="3"
+            app:layout_row="1" />
+
+        <Button
+            android:id="@+id/button12"
+            style="@style/gridButton"
+            app:layout_column="2"
+            app:layout_row="1" />
+
+        <Button
+            android:id="@+id/button11"
+            style="@style/gridButton"
+            app:layout_column="1"
+            app:layout_row="1" />
+
+        <Button
+            android:id="@+id/button10"
+            style="@style/gridButton"
+            app:layout_column="0"
+            app:layout_row="1" />
+
+        <Button
+            android:id="@+id/button07"
+            style="@style/gridButton"
+            app:layout_column="7"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/button06"
+            style="@style/gridButton"
+            app:layout_column="6"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/button05"
+            style="@style/gridButton"
+            app:layout_column="5"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/button04"
+            style="@style/gridButton"
+            app:layout_column="4"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/button03"
+            style="@style/gridButton"
+            app:layout_column="3"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/button02"
+            style="@style/gridButton"
+            app:layout_column="2"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/button01"
+            style="@style/gridButton"
+            app:layout_column="1"
+            app:layout_row="0" />
+
+        <Button
+            android:id="@+id/button00"
+            style="@style/gridButton"
+            app:layout_column="0"
+            app:layout_row="0" />
+    </androidx.gridlayout.widget.GridLayout>
+
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="228dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:layout_marginBottom="1dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gridLayout"
+        app:layout_constraintVertical_bias="1.0"></LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
