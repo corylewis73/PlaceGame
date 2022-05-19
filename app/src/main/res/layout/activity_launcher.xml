@@ -6,4 +6,65 @@
     android:layout_height="match_parent"
     tools:context=".Launcher">
 
+    <Button
+        android:id="@+id/buttonSP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SinglePlayer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.576" />
+
+    <Button
+        android:id="@+id/buttonMPH"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MultiPlayer (Host)"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.702" />
+
+    <Button
+        android:id="@+id/buttonMPP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MultiPlayer (Player)"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.819" />
+
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to PlaceGame!"
+        android:textSize="32sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.09" />
+
+    <TextView
+        android:id="@+id/textViewInstructions"
+        android:layout_width="279dp"
+        android:layout_height="120dp"
+        android:text="Instructions: Click SINGLEPLAYER to play against a computer.\n\nTo play in a group, have one player
+click on MULTIPLAYER (HOST) while all the other players click on MULTIPLAYER (SINGLE)."
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.275" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
