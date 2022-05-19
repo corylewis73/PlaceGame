@@ -10,7 +10,8 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     public Tile[][] board = new Tile[8][8];
-
+    private Game game;
+    //Will be used and initialized later.
     // Determines which map to load. -1 = empty, 0 = full board
     public int mapID = -1;
 
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // For now it will default to full map but later the user can select map
         initBoard(0);
+
     }
 
     @Override
