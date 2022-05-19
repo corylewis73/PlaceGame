@@ -9,8 +9,7 @@ public class Game
     private int turnToMove;
 
     //Constructor, default for 2 players
-    public Game()
-    {
+    public Game() {
         Player playerOne = new Player();
         Player playerTwo = new Player();
         playerList.add(playerOne);
@@ -19,24 +18,33 @@ public class Game
     }
 
     //Allows any number of players
-    public Game(int players)
-    {
-        for (int i=0;i<players;i++)
-        {
+    public Game(int players) {
+        for (int i=0;i<players;i++) {
             Player newPlayer = new Player();
             playerList.add(newPlayer);
         }
         turnToMove = 0;
     }
 
-    public changeTurn()
-    {
-
+    //Used to change the turn of the game. Checks to see if the game is over before the switch
+    //returns true if successful, false otherwise.
+    public boolean changeTurn() {
+        if (!this.isGameOver()) {
+            if (turnToMove + 1 >= playerList.size())
+                turnToMove = 0;
+            else
+                turnToMove += 1;
+            return true;
+        }
+        return false;
     }
 
-    private isGameOver()
-    {
-
+    //Helper function to check if the game is over
+    private boolean isGameOver() {
+        for (int i=0;i<playerList.size();i++) {
+            if (playerList.get(i).tilesLeft() != 0)
+                return false;
+        }
+        return true;
     }
-
 }
