@@ -1,9 +1,13 @@
 package com.example.placegame;
 
+import android.widget.Button;
+
 import java.util.ArrayList;
 
 public class Game
 {
+    public Tile[][] board = new Tile[8][8];
+
     //Support for multiple players
     private ArrayList<Player> playerList = new ArrayList<>();
     private int turnToMove;
