@@ -1,8 +1,11 @@
 package com.example.placegame;
 
+import android.graphics.Color;
 import android.widget.Button;
 
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Game
 {
@@ -73,9 +76,28 @@ public class Game
     }
 
     //Changes the color of a tile.
-    public void editTile()
+    public void editTile(int number)
     {
+        //Fix this to make it more efficient
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (number == board[i][j].button.getId()) {
+                    board[i][j].button.setBackgroundColor(Color.parseColor(playerList.get(0).playerColor));
+                    //Call computer turn after human turn completes.
+                    computerTurn();
+                }
+            }
+        }
+    }
 
+    //Used to make a random move for a computer
+    public void computerTurn()
+    {
+        Random rand = new Random();
+        int randomRow = rand.nextInt((8-0)+1);
+        int randomCol = rand.nextInt((8-0)+1);
+        //Does this work?
+        board[randomRow][randomCol].button.setBackgroundColor(Color.parseColor(playerList.get(0).playerColor));
     }
 
     public int getTurnToMove() {

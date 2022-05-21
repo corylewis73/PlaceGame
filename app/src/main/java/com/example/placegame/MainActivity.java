@@ -25,8 +25,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         // For now it will default to full map but later the user can select map
-        initBoard(game,0);
         game = new Game(1, 1);
+        initBoard(game,0);
         score = (TextView) findViewById(R.id.textViewScore);
         turnToMove = (TextView) findViewById(R.id.textViewTurnToMove);
     }
@@ -43,15 +43,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        for (int i = 0; i < game.board.length; i++) {
-            for (int j = 0; j < game.board[i].length; j++) {
-                if (view.getId() == game.board[i][j].button.getId()) {
-                    game.board[i][j].button.setBackgroundColor(Color.parseColor("#ff0000"));
-                }
-            }
-        }
-    }
+        game.editTile(view.getId());
+        sleep(1000); //Find out how to do this
+        game.computerTurn();
+        //Need to also change the graphics here
 
+    }
 
     // Constructs board based off of map selected. Can add more cases for more maps later
     void initBoard(Game game, int mapID_) {

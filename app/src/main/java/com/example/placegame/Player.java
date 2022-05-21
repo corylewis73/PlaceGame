@@ -4,6 +4,11 @@ import java.util.Random;
 
 public class Player {
     public String playerColor;
+    // Number of uses for each type of tile in the deck
+    public int regularUses;
+    public int horizontalUses;
+    public int verticalUses;
+    private int totalTilesLeft;
 
     //default constructor
     //Adds basic tiles and variables and instantiates a random color.
@@ -18,13 +23,6 @@ public class Player {
         int rand_num = obj.nextInt(0xffffff + 1);
         playerColor = String.format("#%06x", rand_num);
     }
-
-
-    // Number of uses for each type of tile in the deck
-    public int regularUses = 10;
-    public int horizontalUses = 1;
-    public int verticalUses = 1;
-    private int totalTilesLeft;
 
     //This method is to see how many moves a player has left.
     public int tilesLeft()
