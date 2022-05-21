@@ -1,8 +1,11 @@
 package com.example.placegame;
 
+import android.graphics.Color;
 import android.widget.Button;
 
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Game
 {
@@ -30,6 +33,20 @@ public class Game
         turnToMove = 0;
     }
 
+    //General maker function for later.
+    public Game(int players, int computers)
+    {
+        //This might not be allowed in this lang but maybe?
+        for (int i=0;i<players;i++) {
+            Player newPlayer = new Player();
+            playerList.add(newPlayer);
+        }
+        for (int i=0;i<computers;i++) {
+            Player newPlayer = new Player();
+            playerList.add(newPlayer);
+        }
+    }
+
     //Used to change the turn of the game. Checks to see if the game is over before the switch
     //returns true if successful, false otherwise.
     public boolean changeTurn() {
@@ -51,4 +68,41 @@ public class Game
         }
         return true;
     }
+
+    //Gets the score of the board at the time.
+    public ArrayList<Integer> getScore()
+    {
+        return null;
+    }
+
+    //Changes the color of a tile.
+    public void editTile(int number)
+    {
+        //Fix this to make it more efficient
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (number == board[i][j].button.getId()) {
+                    board[i][j].button.setBackgroundColor(Color.parseColor(playerList.get(turnToMove).playerColor));
+                }
+            }
+        }
+        //This will break at the end, fix this later.
+        changeTurn();
+    }
+
+    //Used to make a random move for a computer
+    public void computerTurn()
+    {
+        Random rand = new Random();
+        int randomRow = rand.nextInt((8-0)+1);
+        int randomCol = rand.nextInt((8-0)+1);
+        //Does this work?
+        board[randomRow][randomCol].button.setBackgroundColor(Color.parseColor(playerList.get(turnToMove).playerColor));
+        changeTurn();
+    }
+
+    public int getTurnToMove() {
+        return turnToMove;
+    }
+
 }
