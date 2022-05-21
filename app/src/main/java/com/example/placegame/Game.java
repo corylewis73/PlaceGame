@@ -30,6 +30,20 @@ public class Game
         turnToMove = 0;
     }
 
+    //General maker function for later.
+    public Game(int players, int computers)
+    {
+        //This might not be allowed in this lang but maybe?
+        for (int i=0;i<players;i++) {
+            Player newPlayer = new Player();
+            playerList.add(newPlayer);
+        }
+        for (int i=0;i<computers;i++) {
+            Player newPlayer = new Player();
+            playerList.add(newPlayer);
+        }
+    }
+
     //Used to change the turn of the game. Checks to see if the game is over before the switch
     //returns true if successful, false otherwise.
     public boolean changeTurn() {
@@ -51,4 +65,21 @@ public class Game
         }
         return true;
     }
+
+    //Gets the score of the board at the time.
+    public ArrayList<Integer> getScore()
+    {
+        return null;
+    }
+
+    //Changes the color of a tile.
+    public void editTile()
+    {
+
+    }
+
+    public int getTurnToMove() {
+        return turnToMove;
+    }
+
 }

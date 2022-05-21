@@ -6,13 +6,18 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private Game game = new Game();
+    private Game game;
     //Will be used and initialized later.
     // Determines which map to load. -1 = empty, 0 = full board
     public int mapID = -1;
+    private TextView turnToMove;
+    private TextView score;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +26,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // For now it will default to full map but later the user can select map
         initBoard(game,0);
-
+        game = new Game(1, 1);
+        score = (TextView) findViewById(R.id.textViewScore);
+        turnToMove = (TextView) findViewById(R.id.textViewTurnToMove);
     }
 
     @Override
@@ -44,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+
 
     // Constructs board based off of map selected. Can add more cases for more maps later
     void initBoard(Game game, int mapID_) {
