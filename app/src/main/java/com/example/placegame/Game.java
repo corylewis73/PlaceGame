@@ -82,12 +82,12 @@ public class Game
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 if (number == board[i][j].button.getId()) {
-                    board[i][j].button.setBackgroundColor(Color.parseColor(playerList.get(0).playerColor));
-                    //Call computer turn after human turn completes.
-                    computerTurn();
+                    board[i][j].button.setBackgroundColor(Color.parseColor(playerList.get(turnToMove).playerColor));
                 }
             }
         }
+        //This will break at the end, fix this later.
+        changeTurn();
     }
 
     //Used to make a random move for a computer
@@ -97,7 +97,8 @@ public class Game
         int randomRow = rand.nextInt((8-0)+1);
         int randomCol = rand.nextInt((8-0)+1);
         //Does this work?
-        board[randomRow][randomCol].button.setBackgroundColor(Color.parseColor(playerList.get(0).playerColor));
+        board[randomRow][randomCol].button.setBackgroundColor(Color.parseColor(playerList.get(turnToMove).playerColor));
+        changeTurn();
     }
 
     public int getTurnToMove() {

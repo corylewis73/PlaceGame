@@ -2,6 +2,7 @@ package com.example.placegame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import static java.lang.Thread.sleep;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -44,7 +45,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         game.editTile(view.getId());
-        sleep(1000); //Find out how to do this
+        try {
+            sleep(100); //Find out how to do this
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         game.computerTurn();
         //Need to also change the graphics here
 
