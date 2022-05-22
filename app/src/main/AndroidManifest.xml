@@ -10,6 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlaceGame">
         <activity
+            android:name=".MultihostPage"
+            android:exported="false" />
+        <activity
+            android:name=".MultiplayerPage"
+            android:exported="false" />
+        <activity
             android:name=".Launcher"
             android:exported="true">
             <intent-filter>
