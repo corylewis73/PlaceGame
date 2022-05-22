@@ -3,6 +3,8 @@ package com.example.placegame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import static java.lang.Thread.sleep;
+
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,32 +23,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Determines which map to load. -1 = empty, 0 = full board
     public int mapID = -1;
     private TextView turnToMove;
+    private TextView tilesLeft;
     private TextView score;
     private Handler myHandler;
 
     //myUpdateClass is used for updating the GUI
     private class myUpdateClass implements Runnable {
         //Constructor used to make, can run to do things later.
-        private String color;
+        private String color, turn = "Turn To Move: ", tiles = "Tiles Left: ";
         private int i;
         private int j;
 
-        public myUpdateClass(String playerColor, int vali, int valj) {
+        public myUpdateClass(String playerColor, int turnToMove, int tilesLeft, int vali, int valj) {
             color = playerColor;
+            turn = "Turn To Move: " + turnToMove;
+            tiles = "Tiles Left: " + tilesLeft;
             i = vali;
             j = valj;
         }
 
-        public myUpdateClass(String playerColor) {
+        public myUpdateClass(String playerColor, int turnToMove, int tilesLeft) {
             Random rand = new Random();
             i = rand.nextInt((7-0)+1);
             j = rand.nextInt((7-0)+1);
             color = playerColor;
+            turn = "Turn To Move: " + turnToMove;
+            tiles = "Tiles Left: " + tilesLeft;
+        }
+
+        public void updateTurn(String turn_) {
+            turn = turn_;
+        }
+
+        public void updateTiles(String tiles_) {
+            tiles = tiles_;
         }
 
         @Override
         public void run() {
             game.board[i][j].button.setBackgroundColor(Color.parseColor(color));
+            turnToMove.setText(turn);
+            tilesLeft.setText(tiles);
         }
     }
 
@@ -60,6 +77,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initBoard(game,0);
         score = (TextView) findViewById(R.id.textViewScore);
         turnToMove = (TextView) findViewById(R.id.textViewTurnToMove);
+        tilesLeft = (TextView) findViewById(R.id.textViewTilesLeft);
+
+        // Not sure if best way. This allows it to have tiles left before first click.
+        tilesLeft.setText("Tiles Left: " +  game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
     }
 
     @Override
@@ -74,25 +95,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        myHandler = new Handler();
-        int[] coordinates = game.getIJ(view.getId());
-        //Calling using player constructor.
-        myUpdateClass myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
-                coordinates[0], coordinates[1]);
-        myHandler.post(myCl);
 
+        // Checks if game is over before allowing a click
+        if (!game.isGameOver()) {
+            myHandler = new Handler();
 
-        game.changeTurn();
-        //Calling using computer constructor
-        myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor);
-        myHandler.post(myCl);
-        game.changeTurn();
+            game.getPlayerList().get(game.getTurnToMove()).subtractTile();
+
+            int[] coordinates = game.getIJ(view.getId());
+            //Calling using player constructor.
+            myUpdateClass myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                    game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
+            myHandler.post(myCl);
+
+            // Checks if game is over while changing turn
+            if(!game.changeTurn()) {
+                myCl.updateTurn("Game Over!");
+                myCl.updateTiles("Click any square to return to menu.");
+                myHandler.post(myCl);
+            }
+
+            game.getPlayerList().get(game.getTurnToMove()).subtractTile();
+
+            //Calling using computer constructor
+            myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor, game.getTurnToMove(),
+                    game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
+            myHandler.post(myCl);
+
+            // Checks if game is over while changing turn
+            if(!game.changeTurn()) {
+                myCl.updateTurn("Game Over!");
+                myCl.updateTiles("Click any square to return.");
+                myHandler.post(myCl);
+            }
+
+        }
+        // Returns to menu
+        else {
+            Intent menuIntent = new Intent(this, Launcher.class);
+            startActivity(menuIntent);
+        }
         //Need to also change the graphics here
 
     }
 
     // Constructs board based off of map selected. Can add more cases for more maps later
-    void initBoard(Game game, int mapID_) {
+    private void initBoard(Game game, int mapID_) {
         mapID = mapID_;
         int i = 0, j= 0 ;
         switch (mapID) {
