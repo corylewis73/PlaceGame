@@ -61,7 +61,7 @@ public class Game
     }
 
     //Helper function to check if the game is over
-    private boolean isGameOver() {
+    public boolean isGameOver() {
         for (int i=0;i<playerList.size();i++) {
             if (playerList.get(i).tilesLeft() != 0)
                 return false;

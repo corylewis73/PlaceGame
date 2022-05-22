@@ -33,6 +33,6 @@ public class Player {
 
     public void subtractTile()
     {
-
+        totalTilesLeft--;
     }
 }
