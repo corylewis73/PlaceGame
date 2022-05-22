@@ -6,7 +6,8 @@ public class Tile {
 
     // Determines tile color. -1 = not in play, 0 = gray
     public int colorID;
-
+    // -1 if not owned, # of player otherwise
+    private int playerOwned;
 
     Button button;
 
@@ -14,6 +15,10 @@ public class Tile {
         colorID = colorID_;
         Tile left, right, up, down;
         button = button_;
+        playerOwned = -1;
     }
+
+    public int getPlayerOwned() {return playerOwned;}
+    public void setPlayerOwned(int val) {playerOwned = val;}
 
 }

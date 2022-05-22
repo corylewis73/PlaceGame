@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView score;
     private Handler myHandler;
 
+    //myUpdateClass is used for updating the GUI
     private class myUpdateClass implements Runnable {
         //Constructor used to make, can run to do things later.
         private String color;
@@ -36,12 +37,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             j = valj;
         }
 
-        public myUpdateClass(String playerColor)
-        {
+        public myUpdateClass(String playerColor) {
             Random rand = new Random();
             i = rand.nextInt((7-0)+1);
             j = rand.nextInt((7-0)+1);
-            //Does this work?
             color = playerColor;
         }
 
@@ -77,13 +76,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         myHandler = new Handler();
         int[] coordinates = game.getIJ(view.getId());
+        //Calling using player constructor.
         myUpdateClass myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
                 coordinates[0], coordinates[1]);
         myHandler.post(myCl);
 
+
         game.changeTurn();
+        //Calling using computer constructor
         myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor);
         myHandler.post(myCl);
+        game.changeTurn();
         //Need to also change the graphics here
 
     }
@@ -128,9 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-
-
-    }
+}
 
 
 

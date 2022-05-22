@@ -19,6 +19,7 @@ public class Player {
         verticalUses = 1;
         totalTilesLeft = 7;
 
+        //Pick a random color for the player
         Random obj = new Random();
         int rand_num = obj.nextInt(0xffffff + 1);
         playerColor = String.format("#%06x", rand_num);
@@ -28,5 +29,10 @@ public class Player {
     public int tilesLeft()
     {
         return totalTilesLeft;
+    }
+
+    public void subtractTile()
+    {
+
     }
 }
