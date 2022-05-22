@@ -5,11 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import static java.lang.Thread.sleep;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
+
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -19,6 +22,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public int mapID = -1;
     private TextView turnToMove;
     private TextView score;
+    private Handler myHandler;
+
+    private class myUpdateClass implements Runnable {
+        //Constructor used to make, can run to do things later.
+        private String color;
+        private int i;
+        private int j;
+
+        public myUpdateClass(String playerColor, int vali, int valj) {
+            color = playerColor;
+            i = vali;
+            j = valj;
+        }
+
+        public myUpdateClass(String playerColor)
+        {
+            Random rand = new Random();
+            i = rand.nextInt((7-0)+1);
+            j = rand.nextInt((7-0)+1);
+            //Does this work?
+            color = playerColor;
+        }
+
+        @Override
+        public void run() {
+            game.board[i][j].button.setBackgroundColor(Color.parseColor(color));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +75,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        game.editTile(view.getId());
-        try {
-            sleep(100); //Find out how to do this
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        game.computerTurn();
+        myHandler = new Handler();
+        int[] coordinates = game.getIJ(view.getId());
+        myUpdateClass myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                coordinates[0], coordinates[1]);
+        myHandler.post(myCl);
+
+        game.changeTurn();
+        myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor);
+        myHandler.post(myCl);
         //Need to also change the graphics here
 
     }
@@ -95,7 +128,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-}
+
+
+    }
 
 
 

@@ -76,6 +76,7 @@ public class Game
     }
 
     //Changes the color of a tile.
+    //Might be outdated at this point.
     public void editTile(int number)
     {
         //Fix this to make it more efficient
@@ -90,19 +91,24 @@ public class Game
         changeTurn();
     }
 
-    //Used to make a random move for a computer
-    public void computerTurn()
-    {
-        Random rand = new Random();
-        int randomRow = rand.nextInt((8-0)+1);
-        int randomCol = rand.nextInt((8-0)+1);
-        //Does this work?
-        board[randomRow][randomCol].button.setBackgroundColor(Color.parseColor(playerList.get(turnToMove).playerColor));
-        changeTurn();
-    }
-
     public int getTurnToMove() {
         return turnToMove;
     }
 
+    public ArrayList<Player> getPlayerList() {
+        return playerList;
+    }
+
+    //returns i and j position of a view.getID() call
+    public int[] getIJ(int number)
+    {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (number == board[i][j].button.getId()) {
+                    return new int[]{i,j};
+                }
+            }
+        }
+        return null; //should not reach here
+    }
 }
