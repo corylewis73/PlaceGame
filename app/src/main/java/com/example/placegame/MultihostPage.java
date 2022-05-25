@@ -1,4 +1,6 @@
 package com.example.placegame;
+//Originally worked with my own socket programming code, but it was inconsistent so went and used tutorial from Sarthi Technology on YouTube
+//Because it used Android's built-in packages which I assumed were more stable than doing it manually.
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -9,12 +11,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.InetAddresses;
 import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,10 +30,15 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MultihostPage extends AppCompatActivity implements View.OnClickListener {
+public class MultihostPage extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
 
     //Necessary for P2P
@@ -36,7 +47,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     private Button btnSend;
     private ListView listView;
     private TextView read_msg_box;
-    private TextView connectionStatus;
+    public TextView connectionStatus;
     private EditText writeMsg;
     private Button btnOnOff;
 
@@ -60,12 +71,13 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         connectionStatus = (TextView) findViewById(R.id.connectionStatus);
         writeMsg = (EditText) findViewById(R.id.writeMsg);
 
-        //Wifi inits
+        //Wifi initializations
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiButton = findViewById(R.id.buttonDISCOVER);
         wifiButton.setOnClickListener(this);
         btnOnOff = (Button) findViewById(R.id.btnOnOff);
         btnOnOff.setOnClickListener(this);
+        listView.setOnItemClickListener(this);
 
         mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(), null);
@@ -80,11 +92,10 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
     }
 
-    WifiP2pManager.PeerListListener peerListListener=new WifiP2pManager.PeerListListener() {
+    WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
         @Override
         public void onPeersAvailable(WifiP2pDeviceList peerList) {
-            if (!peerList.getDeviceList().equals(peers))
-            {
+            if (!peerList.getDeviceList().equals(peers)) {
                 peers.clear();
                 peers.addAll(peerList.getDeviceList());
 
@@ -92,25 +103,44 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
                 deviceArray = new WifiP2pDevice[peerList.getDeviceList().size()];
                 int index = 0;
 
-                for (WifiP2pDevice device : peerList.getDeviceList())
-                {
+                for (WifiP2pDevice device : peerList.getDeviceList()) {
                     deviceNameArray[index] = device.deviceName;
                     deviceArray[index] = device;
                     index++;
                 }
 
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
-                        android.R.layout.simple_list_item_1,deviceNameArray);
+                        android.R.layout.simple_list_item_1, deviceNameArray);
                 listView.setAdapter(adapter);
 
-                if (peers.size() == 0)
-                {
+                if (peers.size() == 0) {
                     Toast.makeText(getApplicationContext(), "No Device Found", Toast.LENGTH_SHORT).show();
                 }
 
             }
         }
     };
+
+    WifiP2pManager.ConnectionInfoListener connectionInfoListener = new WifiP2pManager.ConnectionInfoListener() {
+        @Override
+        public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
+            final InetAddress groupOwnerAddress = wifiP2pInfo.groupOwnerAddress;
+
+            if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
+            {
+                connectionStatus.setText("Host");
+            } else if (wifiP2pInfo.groupFormed)
+            {
+                connectionStatus.setText("Client");
+            }
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mReceiver, intentFilter);
+    }
 
     @Override
     protected void onPostResume() {
@@ -124,14 +154,54 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         unregisterReceiver(mReceiver);
     }
 
+
+
+    public class ServerClass extends Thread{
+        Socket socket;
+        ServerSocket serverSocket;
+
+        @Override
+        public void run() {
+            try {
+                serverSocket = new ServerSocket(8888);
+                socket = serverSocket.accept();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
+    public class ClientClass extends Thread{
+        Socket socket;
+        String hostAdd;
+
+        public ClientClass(InetAddress hostAddress) {
+            hostAdd = hostAddress.getHostAddress();
+            socket = new Socket();
+        }
+
+        @Override
+        public void run() {
+            try {
+                socket.connect(new InetSocketAddress(hostAdd,8888),500);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case (R.id.buttonDISCOVER):
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION },1);
-                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE },1);
-                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.INTERNET},1);
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE}, 1);
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
 
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -153,17 +223,52 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
                         connectionStatus.setText("Failed to start Discovery");
                     }
                 });
+                //Not sure I need this, we might be able to get rid of it.
             case (R.id.btnOnOff):
                 if (wifiManager.isWifiEnabled()) {
                     wifiManager.setWifiEnabled(false);
                     btnOnOff.setText("OFF");
-                }
-                else
-                {
+                } else {
                     wifiManager.setWifiEnabled(true);
                     btnOnOff.setText("ON");
                 }
 
         }
+    }
+
+
+
+    //Used for listView
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        final WifiP2pDevice device = deviceArray[i];
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+
+        //Need this check
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(getApplicationContext(), "Connected to "+device.deviceName, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int i) {
+                Toast.makeText(getApplicationContext(), "Failed to connect", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
