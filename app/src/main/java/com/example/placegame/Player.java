@@ -10,14 +10,17 @@ public class Player {
     public int verticalUses;
     private int totalTilesLeft;
 
+    // 0 = regular, 1 = horizontal, 2 = vertical
+    public int tileType = 0;
+
     //default constructor
     //Adds basic tiles and variables and instantiates a random color.
     public Player()
     {
-        regularUses = 5;
-        horizontalUses = 1;
-        verticalUses = 1;
-        totalTilesLeft = 7;
+        regularUses = 10;
+        horizontalUses = 3;
+        verticalUses = 3;
+        totalTilesLeft = 16;
 
         //Pick a random color for the player
         Random obj = new Random();
