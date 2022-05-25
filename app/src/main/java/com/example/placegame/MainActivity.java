@@ -12,8 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -31,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private class myUpdateClass implements Runnable {
         //Constructor used to make, can run to do things later.
         private String color, turn = "Turn To Move: ", tiles = "Tiles Left: ";
-	private Integer score_inner;
+        private Integer score_inner;
         private int i;
         private int j;
 
@@ -51,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             turn = "Turn To Move: " + turnToMove;
             tiles = "Tiles Left: " + tilesLeft;
         }
-
+        public int[] coordinatesOfComputer() { int arr[] = {i,j}; return arr;};
         public void updateTurn(String turn_) {
             turn = turn_;
         }
@@ -60,17 +58,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tiles = tiles_;
         }
 
-	public void updateScore(Integer score_){
-		score_inner = score_;
-	}
-
+        public void updateScore(Integer score_) {
+            score_inner = score_;
+        }
 
         @Override
         public void run() {
             game.board[i][j].button.setBackgroundColor(Color.parseColor(color));
             turnToMove.setText(turn);
             tilesLeft.setText(tiles);
-	    score.setText("Score: "+ score_inner);
+            score.setText("Score: "+ score_inner);
         }
     }
 
@@ -88,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Not sure if best way. This allows it to have tiles left before first click.
         tilesLeft.setText("Tiles Left: " +  game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
-	score.setText("Score: "+ game.getPlayerList().get(game.getTurnToMove()).getScore());
+        score.setText("Score: " + game.getPlayerList().get(game.getTurnToMove()).getScore());
     }
 
     @Override
@@ -111,13 +108,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             game.getPlayerList().get(game.getTurnToMove()).subtractTile();
 
             int[] coordinates = game.getIJ(view.getId());
+
             //Calling using player constructor.
+            game.setPlayerForTile(coordinates, game.getTurnToMove());
+
             myUpdateClass myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
                     game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
-            System.out.println("score: " + game.getScoreOfPlayer(game.getTurnToMove()));
-	    int score = game.getScoreOfPlayer(game.getTurnToMove());
-	    // myCl.updateScore();
-	    myHandler.post(myCl);
+            System.out.println("score = " + game.getScoreOfPlayer(game.getTurnToMove()));
+            int score = game.getScoreOfPlayer(game.getTurnToMove());
+//            myCl.updateScore();
+            myHandler.post(myCl);
 
             // Checks if game is over while changing turn
             if(!game.changeTurn()) {
@@ -131,11 +131,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //Calling using computer constructor
             myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor, game.getTurnToMove(),
                     game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
-	    game.setPlayerForTile(myCl.coordinatesOfComputer(),game.getTurnToMove());
+            game.setPlayerForTile(myCl.coordinatesOfComputer(),game.getTurnToMove());
             myCl.updateScore(game.getScoreOfPlayer(game.getTurnToMove()));
             myHandler.post(myCl);
-	      myCl.updateScore(score);
-
+            myCl.updateScore(score);
             // Checks if game is over while changing turn
             if(!game.changeTurn()) {
                 myCl.updateTurn("Game Over!");
