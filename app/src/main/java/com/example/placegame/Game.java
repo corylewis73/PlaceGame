@@ -24,6 +24,15 @@ public class Game
         turnToMove = 0;
     }
 
+
+    public Game(String name)
+    {
+        Player playerOne = playerOne = new Player("Host");
+        Player playerTwo = playerTwo = new Player("Client");
+        playerList.add(playerOne);
+        playerList.add(playerTwo);
+    }
+
     //Allows any number of players
     public Game(int players) {
         for (int i=0;i<players;i++) {

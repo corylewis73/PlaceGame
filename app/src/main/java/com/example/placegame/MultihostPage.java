@@ -50,14 +50,21 @@ import java.util.Random;
 
 public class MultihostPage extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
-
     //Necessary for P2P
     private final IntentFilter intentFilter = new IntentFilter();
     private Button wifiButton;
     public Button btnSend;
+    public Button btnOnOff;
     public ListView listView;
     public TextView read_msg_box;
     public TextView connectionStatus;
+
+    private Game game;
+    public int mapID = -1;
+    private TextView turnToMove;
+    private TextView tilesLeft;
+    private TextView score;
+    private String whoAmI;
 
     WifiP2pManager mManager;
     WifiP2pManager.Channel mChannel;
@@ -67,7 +74,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     String[] deviceNameArray;
     WifiP2pDevice[] deviceArray;
     public Handler myHandler;
-
     public String identity;
 
     static final int MESSAGE_READ=1;
@@ -94,6 +100,46 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    //myUpdateClass is used for updating the GUI
+    private class gameUpdateClass implements Runnable {
+        //Constructor used to make, can run to do things later.
+        private String color, turn = "Turn To Move: ", tiles = "Tiles Left: ";
+        private int i;
+        private int j;
+
+        public gameUpdateClass(String playerColor, int turnToMove, int tilesLeft, int vali, int valj) {
+            color = playerColor;
+            turn = "Turn To Move: " + turnToMove;
+            tiles = "Tiles Left: " + tilesLeft;
+            i = vali;
+            j = valj;
+        }
+
+        public gameUpdateClass(String playerColor, int turnToMove, int tilesLeft) {
+            Random rand = new Random();
+            i = rand.nextInt((7-0)+1);
+            j = rand.nextInt((7-0)+1);
+            color = playerColor;
+            turn = "Turn To Move: " + turnToMove;
+            tiles = "Tiles Left: " + tilesLeft;
+        }
+
+        public void updateTurn(String turn_) {
+            turn = turn_;
+        }
+
+        public void updateTiles(String tiles_) {
+            tiles = tiles_;
+        }
+
+        @Override
+        public void run() {
+            game.board[i][j].button.setBackgroundColor(Color.parseColor(color));
+            turnToMove.setText(turn);
+            tilesLeft.setText(tiles);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,13 +154,63 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
 
         btnSend = (Button) findViewById(R.id.sendButton);
         listView = (ListView) findViewById(R.id.peerListView);
+        btnOnOff = (Button) findViewById(R.id.btnOnOff);
         connectionStatus = (TextView) findViewById(R.id.connectionStatus);
 
         //Wifi initializations
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiButton = findViewById(R.id.buttonDISCOVER);
+        wifiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MultihostPage.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+                    ActivityCompat.requestPermissions(MultihostPage.this, new String[]{Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE}, 1);
+                    ActivityCompat.requestPermissions(MultihostPage.this, new String[]{Manifest.permission.INTERNET}, 1);
+                    //This might not work???
+
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        connectionStatus.setText("Discovery Started");
+                    }
+
+                    @Override
+                    public void onFailure(int i) {
+                        connectionStatus.setText("Failed to start Discovery");
+                    }
+                });
+            }
+        });
+        btnOnOff = (Button) findViewById(R.id.btnOnOff);
+        btnOnOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (wifiManager.isWifiEnabled()) {
+                    wifiManager.setWifiEnabled(false);
+                    btnOnOff.setText("OFF");
+                } else {
+                    wifiManager.setWifiEnabled(true);
+                    btnOnOff.setText("ON");
+                }
+            }
+        });
         listView.setOnItemClickListener(this);
-        btnSend.setOnClickListener(this);
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("YES!" );
+            }
+        });
         myHandler = new Handler();
 
         mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
@@ -128,6 +224,13 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         // Indicates this device's details have changed.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+
+        //game = new Game("wifi");
+        //initBoard(game,0);
+        //score = (TextView) findViewById(R.id.textViewScore);
+        //turnToMove = (TextView) findViewById(R.id.textViewTurnToMove);
+        //tilesLeft = (TextView) findViewById(R.id.textViewTilesLeft);
+
     }
 
     //This displays text in the message field in the original app
@@ -309,45 +412,10 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         switch (view.getId()) {
             case (R.id.buttonDISCOVER):
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE}, 1);
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
 
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        connectionStatus.setText("Discovery Started");
-                    }
 
-                    @Override
-                    public void onFailure(int i) {
-                        connectionStatus.setText("Failed to start Discovery");
-                    }
-                });
 
-                //Used to start the game
-            case (R.id.sendButton):
-                //String msg = writeMsg.getText().toString();
-                //myUpdateClass cl = new myUpdateClass(msg);
-                //myHandler.post(cl);
-                Intent singlePlayerIntent = new Intent(this, MultiplayerPage.class);
-                singlePlayerIntent.putExtra("name",identity);
-                singlePlayerIntent.putExtra("client", (Serializable) clientClass);
-                singlePlayerIntent.putExtra("server", (Serializable) serverClass);
-                singlePlayerIntent.putExtra("sendReceive", (Serializable) sendReceive);
-                //Might not be allowed
 
-                startActivity(singlePlayerIntent);
         }
     }
 
@@ -383,5 +451,46 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
                 Toast.makeText(getApplicationContext(), "Failed to connect", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Constructs board based off of map selected. Can add more cases for more maps later
+    private void initBoard(Game game, int mapID_) {
+        mapID = mapID_;
+        int i = 0, j= 0 ;
+        switch (mapID) {
+            case -1:
+                while(j < game.board[0].length) {
+                    if (i >= game.board.length) {
+                        i = 0;
+                        j++;
+                    }
+                    if (j < game.board[0].length) {
+                        String buttonID_string = "button" + i + j;
+                        int buttonID = getResources().getIdentifier(buttonID_string, "id", getPackageName());
+                        Button button = (Button) findViewById(buttonID);
+                        button.setOnClickListener(this);
+                        game.board[i][j] = new Tile(-1, button);
+                        i++;
+                    }
+                }
+                break;
+
+            case 0:
+                while(j < game.board[0].length) {
+                    if (i >= game.board.length) {
+                        i = 0;
+                        j++;
+                    }
+                    if (j < game.board[0].length) {
+                        String buttonID_string = "button" + i + j;
+                        int buttonID = getResources().getIdentifier(buttonID_string, "id", getPackageName());
+                        Button button = (Button) findViewById(buttonID);
+                        button.setOnClickListener(this);
+                        game.board[i][j] = new Tile(0, button);
+                        i++;
+                    }
+                }
+                break;
+        }
     }
 }

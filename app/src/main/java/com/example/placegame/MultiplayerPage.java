@@ -1,11 +1,13 @@
 package com.example.placegame;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,11 +23,13 @@ public class MultiplayerPage extends AppCompatActivity implements View.OnClickLi
     private TextView tilesLeft;
     private TextView score;
     private Handler myHandler;
-
+    private String whoAmI;
+    static final int MESSAGE_READ=1;
 
     public MultihostPage.ClientClass client;
     public MultihostPage.ServerClass server;
     public MultihostPage.SendReceive sendReceive;
+
 
 
     //myUpdateClass is used for updating the GUI
@@ -68,20 +72,14 @@ public class MultiplayerPage extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Bundle extras = getIntent().getExtras();
-        String value = extras.getString("name");
-
-        client = (MultihostPage.ClientClass) extras.getSerializable("client");
-        server = (MultihostPage.ServerClass) extras.getSerializable("server");
-        sendReceive = (MultihostPage.SendReceive) extras.getSerializable("sendReceive");
-
         // For now it will default to full map but later the user can select map
-        game = new Game(2);
+        game = new Game("wifi");
         initBoard(game,0);
         score = (TextView) findViewById(R.id.textViewScore);
         turnToMove = (TextView) findViewById(R.id.textViewTurnToMove);
@@ -93,6 +91,22 @@ public class MultiplayerPage extends AppCompatActivity implements View.OnClickLi
         // Not sure if best way. This allows it to have tiles left before first click.
         tilesLeft.setText("Tiles Left: " +  game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
     }
+
+    //This displays text in the message field in the original app
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            switch (msg.what)
+            {
+                case MESSAGE_READ:
+                    byte[] readBuff= (byte[]) msg.obj;
+                    String tempMsg = new String(readBuff, 0, msg.arg1);
+                    score.setText(tempMsg);
+                    break;
+            }
+            return true;
+        }
+    });
 
     @Override
     protected void onPause() {
@@ -106,7 +120,6 @@ public class MultiplayerPage extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onClick(View view) {
-
 
         // Checks if game is over before allowing a click
         if (!game.isGameOver()) {
@@ -122,6 +135,8 @@ public class MultiplayerPage extends AppCompatActivity implements View.OnClickLi
             MultiplayerPage.myUpdateClass myCl = new MultiplayerPage.myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
                     game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
             myHandler.post(myCl);
+
+            //This might because of handler, or the class.
 
             // Checks if game is over while changing turn
             if(!game.changeTurn()) {
