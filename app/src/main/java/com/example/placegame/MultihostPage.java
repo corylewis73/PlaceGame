@@ -2,6 +2,7 @@ package com.example.placegame;
 //Originally worked with my own socket programming code, but it was inconsistent so went and used tutorial from Sarthi Technology on YouTube
 //Because it used Android's built-in packages which I assumed were more stable than doing it manually.
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -19,6 +20,8 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,10 +34,13 @@ import android.widget.Toast;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,13 +50,12 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     //Necessary for P2P
     private final IntentFilter intentFilter = new IntentFilter();
     private Button wifiButton;
-    private Button btnSend;
+    public Button btnSend;
     private ListView listView;
     private TextView read_msg_box;
     public TextView connectionStatus;
     private EditText writeMsg;
     private Button btnOnOff;
-
 
     WifiP2pManager mManager;
     WifiP2pManager.Channel mChannel;
@@ -59,6 +64,12 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
     String[] deviceNameArray;
     WifiP2pDevice[] deviceArray;
+
+    static final int MESSAGE_READ=1;
+    ServerClass serverClass;
+    ClientClass clientClass;
+    SendReceive sendReceive;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +102,22 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         // Indicates this device's details have changed.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
     }
+
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            switch (msg.what)
+            {
+                case MESSAGE_READ:
+                    byte[] readBuff= (byte[]) msg.obj;
+                    String tempMsg = new String(readBuff, 0, msg.arg1);
+                    read_msg_box.setText(tempMsg);
+                    break;
+            }
+            return true;
+        }
+    });
+
 
     WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
         @Override
@@ -129,9 +156,13 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
             if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
             {
                 connectionStatus.setText("Host");
+                serverClass = new ServerClass();
+                serverClass.start();
             } else if (wifiP2pInfo.groupFormed)
             {
                 connectionStatus.setText("Client");
+                clientClass = new ClientClass(groupOwnerAddress);
+                clientClass.start();
             }
         }
     };
@@ -154,7 +185,51 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         unregisterReceiver(mReceiver);
     }
 
+    private class SendReceive extends Thread{
+        private Socket socket;
+        private InputStream inputStream;
+        private OutputStream outputStream;
 
+        public SendReceive(Socket skt)
+        {
+            socket = skt;
+            try {
+                inputStream=socket.getInputStream();
+                outputStream = socket.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void run() {
+            byte[] buffer = new byte[1024]; //Might need to be gigger
+            int bytes;
+
+            while (socket != null)
+            {
+                try{
+                    bytes = inputStream.read(buffer);
+                    if (bytes>0)
+                    {
+                        handler.obtainMessage(MESSAGE_READ,bytes,-1,buffer).sendToTarget();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void write(byte[] bytes)
+        {
+            try {
+                outputStream.write(bytes);
+            } catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public class ServerClass extends Thread{
         Socket socket;
@@ -165,13 +240,13 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
             try {
                 serverSocket = new ServerSocket(8888);
                 socket = serverSocket.accept();
+                sendReceive = new SendReceive(socket);
+                sendReceive.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-
-
 
     public class ClientClass extends Thread{
         Socket socket;
@@ -186,6 +261,8 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         public void run() {
             try {
                 socket.connect(new InetSocketAddress(hostAdd,8888),500);
+                sendReceive= new SendReceive(socket);
+                sendReceive.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -228,11 +305,17 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
                 if (wifiManager.isWifiEnabled()) {
                     wifiManager.setWifiEnabled(false);
                     btnOnOff.setText("OFF");
+                    break;
                 } else {
                     wifiManager.setWifiEnabled(true);
                     btnOnOff.setText("ON");
+                    break;
                 }
-
+            case (R.id.sendButton):
+            {
+                String msg = writeMsg.getText().toString();
+                sendReceive.write(msg.getBytes());
+            }
         }
     }
 
