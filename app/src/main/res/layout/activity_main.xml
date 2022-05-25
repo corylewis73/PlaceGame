@@ -428,7 +428,9 @@
             android:layout_marginRight="-20dp"
             android:layout_weight="1"
             android:text="Regular"
-            android:textSize="20dp" />
+            android:textColor="@color/black"
+            android:textSize="17dp"
+            app:backgroundTint="#ff6600" />
 
         <LinearLayout
             android:layout_width="150dp"
@@ -443,7 +445,9 @@
                 android:layout_marginLeft="50dp"
                 android:layout_weight="1"
                 android:text="Horizontal"
-                android:textSize="20dp" />
+                android:textColor="@color/black"
+                android:textSize="17dp"
+                app:backgroundTint="#ff6600" />
 
             <Button
                 android:id="@+id/buttonVertical"
@@ -452,7 +456,9 @@
                 android:layout_marginLeft="50dp"
                 android:layout_weight="1"
                 android:text="Vertical"
-                android:textSize="20dp" />
+                android:textColor="@color/black"
+                android:textSize="17dp"
+                app:backgroundTint="#ff6600" />
 
         </LinearLayout>
 
@@ -502,7 +508,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Score:"
-        android:textSize="2dp"
+        android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.895"

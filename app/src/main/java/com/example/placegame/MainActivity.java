@@ -33,9 +33,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Constructor used to make, can run to do things later.
         private String color, turn = "Turn To Move: ";
         private String tiles = "Tiles Left: ";
-        private String regular = "Regular x ";
-        private String horizontal = "Horizontal x ";
-        private String vertical = "Vertical x ";
+        private String regular = "Regular\nx ";
+        private String horizontal = "Horizontal\nx ";
+        private String vertical = "Vertical\nx ";
         private int i = -1;
         private int j = -1;
 
@@ -58,10 +58,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tiles = "Tiles Left: " + tilesLeft;
         }
 
-        public void updateUses(int regUses, int horUses, int vertUses) {
-            regular = "Regular x" + regUses;
-            horizontal = "Horizontal x" + horUses;
-            vertical = "Vertical x" + vertUses;
+        public void updateUses(String  regUses, String horUses, String vertUses) {
+            regular = regUses;
+            horizontal = horUses;
+            vertical = vertUses;
         }
 
         public void updateTurn(String turn_) {
@@ -85,21 +85,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Sets the tile selecting buttons' colors
             switch (game.getPlayerList().get(game.getTurnToMove()).tileType) {
                 case 0:
-                    regularButton.setBackgroundColor(Color.parseColor("#ff0000"));
-                    horizontalButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
-                    verticalButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
+                    regularButton.setBackgroundColor(Color.parseColor("#ffffff"));
+                    horizontalButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    verticalButton.setBackgroundColor(Color.parseColor("#ff6600"));
                     break;
 
                 case 1:
-                    regularButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
-                    horizontalButton.setBackgroundColor(Color.parseColor("#ff0000"));
-                    verticalButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
+                    regularButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    horizontalButton.setBackgroundColor(Color.parseColor("#ffffff"));
+                    verticalButton.setBackgroundColor(Color.parseColor("#ff6600"));
                     break;
 
                 case 2:
-                    regularButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
-                    horizontalButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
-                    verticalButton.setBackgroundColor(Color.parseColor("#ff0000"));
+                    regularButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    horizontalButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    verticalButton.setBackgroundColor(Color.parseColor("#ffffff"));
                     break;
             }
         }
@@ -148,13 +148,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             myUpdateClass myCl = new myUpdateClass();
 
-            boolean skipCPU = false;
+            myCl.updateUses("Regular\nx " + game.getPlayerList().get(game.getTurnToMove()).regularUses,
+                    "Horizontal\nx " + game.getPlayerList().get(game.getTurnToMove()).horizontalUses,
+                    "Vertical\nx " + game.getPlayerList().get(game.getTurnToMove()).verticalUses);
 
+            // Select tile type
             switch (view.getId()) {
                 case R.id.buttonRegular:
                     game.getPlayerList().get(game.getTurnToMove()).tileType = 0;
                     myHandler.post(myCl);
                     break;
+
                 case R.id.buttonHorizontal:
                     game.getPlayerList().get(game.getTurnToMove()).tileType = 1;
                     myHandler.post(myCl);
@@ -164,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     game.getPlayerList().get(game.getTurnToMove()).tileType = 2;
                     myHandler.post(myCl);
                     break;
+
                 default:
                     // Checks if currently selected tile has uses left
                     if (usesLeft(game.getPlayerList().get(game.getTurnToMove()).tileType)) {
@@ -175,15 +180,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         clickBoard(myCl, coordinates);
 
                         game.getPlayerList().get(game.getTurnToMove()).subtractTile();
-                        myCl.updateUses(game.getPlayerList().get(game.getTurnToMove()).regularUses,
-                                game.getPlayerList().get(game.getTurnToMove()).horizontalUses,
-                                game.getPlayerList().get(game.getTurnToMove()).verticalUses);
+                        myCl.updateUses("Regular\nx " + game.getPlayerList().get(game.getTurnToMove()).regularUses,
+                                "Horizontal\nx " + game.getPlayerList().get(game.getTurnToMove()).horizontalUses,
+                                "Vertical\nx " + game.getPlayerList().get(game.getTurnToMove()).verticalUses);
                         myHandler.post(myCl);
 
                         // Checks if game is over while changing turn
                         if(!game.changeTurn()) {
                             myCl.updateTurn("Game Over!");
-                            myCl.updateTiles("Click any square to return to menu.");
+                            myCl.updateTiles("Tap any square to return to menu.");
                             myHandler.post(myCl);
                         }
 
@@ -221,6 +226,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             myCl.updateTiles("Click any square to return.");
                             myHandler.post(myCl);
                         }
+                        myCl.updateUses("Regular\nx " + game.getPlayerList().get(game.getTurnToMove()).regularUses,
+                                "Horizontal\nx " + game.getPlayerList().get(game.getTurnToMove()).horizontalUses,
+                                "Vertical\nx " + game.getPlayerList().get(game.getTurnToMove()).verticalUses);
+                        myHandler.post(myCl);
                     }
                     break;
             }
@@ -230,11 +239,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent menuIntent = new Intent(this, Launcher.class);
             startActivity(menuIntent);
         }
-        //Need to also change the graphics here
-
     }
 
-    // Checks if the tile type selected has uses left
+    // Helper function that checks if the tile type selected has uses left
     private boolean usesLeft(int type) {
         switch (type) {
             case 0:
@@ -261,14 +268,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (game.getPlayerList().get(game.getTurnToMove()).tileType) {
             case 0:
                 game.getPlayerList().get(game.getTurnToMove()).regularUses--;
-                //Calling using player constructor.
                 myHandler.post(myCl);
                 break;
 
             case 1:
                 game.getPlayerList().get(game.getTurnToMove()).horizontalUses--;
                 for (int i = 0; i < game.board[coordinates[0]].length; i++) {
-                    //Calling using player constructor.
                     myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
                             game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], i);
                     myHandler.post(myCl);
@@ -278,7 +283,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case 2:
                 game.getPlayerList().get(game.getTurnToMove()).verticalUses--;
                 for (int i = 0; i < game.board.length; i++) {
-                    //Calling using player constructor.
                     myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
                             game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), i, coordinates[1]);
                     myHandler.post(myCl);
