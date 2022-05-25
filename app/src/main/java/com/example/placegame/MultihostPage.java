@@ -85,7 +85,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         public void run() {
             if (mymsg == null)
             {
-                mymsg = "no msg sent";
+                mymsg = " ";
             }
             sendReceive.write(mymsg.getBytes());
         }
@@ -96,7 +96,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multihost_page);
 
-        //Try this
+        //Security Bypass. Must have SDK version greater than 9.
         if (android.os.Build.VERSION.SDK_INT > 9)
         {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -118,7 +118,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         listView.setOnItemClickListener(this);
         btnSend.setOnClickListener(this);
         myHandler = new Handler();
-
 
         mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(), null);
@@ -148,7 +147,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         }
     });
 
-
     WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
         @Override
         public void onPeersAvailable(WifiP2pDeviceList peerList) {
@@ -169,7 +167,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
                         android.R.layout.simple_list_item_1, deviceNameArray);
                 listView.setAdapter(adapter);
-
                 if (peers.size() == 0) {
                     Toast.makeText(getApplicationContext(), "No Device Found", Toast.LENGTH_SHORT).show();
                 }
@@ -240,8 +237,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
             {
                 try{
                     bytes = inputStream.read(buffer);
-                    if (bytes>0)
-                    {
+                    if (bytes>0) {
                         handler.obtainMessage(MESSAGE_READ,bytes,-1,buffer).sendToTarget();
                     }
                 } catch (IOException e) {
@@ -254,12 +250,12 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         {
             try {
                 outputStream.write(bytes);
-            } catch(IOException e)
-            {
+            } catch(IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
 
     public class ServerClass extends Thread{
         Socket socket;
@@ -278,6 +274,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
             }
         }
     }
+
 
     public class ClientClass extends Thread{
         Socket socket;
@@ -299,8 +296,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
             }
         }
     }
-
-
 
     @Override
     public void onClick(View view) {
@@ -348,8 +343,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         }
     }
 
-
-
     //Used for listView
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -382,8 +375,5 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
                 Toast.makeText(getApplicationContext(), "Failed to connect", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
-
-
 }
