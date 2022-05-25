@@ -18,6 +18,14 @@ public class Tile {
         playerOwned = -1;
     }
 
+    //Returns as a string representation
+    public String toString()
+    {
+        String myString = ""+playerOwned;
+        return myString;
+    }
+
+
     public int getPlayerOwned() {return playerOwned;}
     public void setPlayerOwned(int val) {playerOwned = val;}
 

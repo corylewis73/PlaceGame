@@ -38,6 +38,7 @@ import org.w3c.dom.Text;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -57,8 +58,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     public ListView listView;
     public TextView read_msg_box;
     public TextView connectionStatus;
-    public EditText writeMsg;
-    public Button btnOnOff;
 
     WifiP2pManager mManager;
     WifiP2pManager.Channel mChannel;
@@ -69,11 +68,15 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     WifiP2pDevice[] deviceArray;
     public Handler myHandler;
 
+    public String identity;
+
     static final int MESSAGE_READ=1;
     public ServerClass serverClass;
     public ClientClass clientClass;
     public SendReceive sendReceive;
 
+
+    //This runnable class sends a message upon being called to sendReceive.
     public class myUpdateClass implements Runnable {
         public String mymsg;
         public myUpdateClass(String msg)
@@ -105,16 +108,11 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
 
         btnSend = (Button) findViewById(R.id.sendButton);
         listView = (ListView) findViewById(R.id.peerListView);
-        read_msg_box = (TextView) findViewById(R.id.readMsg);
         connectionStatus = (TextView) findViewById(R.id.connectionStatus);
-        writeMsg = (EditText) findViewById(R.id.writeMsg);
 
         //Wifi initializations
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiButton = findViewById(R.id.buttonDISCOVER);
-        wifiButton.setOnClickListener(this);
-        btnOnOff = (Button) findViewById(R.id.btnOnOff);
-        btnOnOff.setOnClickListener(this);
         listView.setOnItemClickListener(this);
         btnSend.setOnClickListener(this);
         myHandler = new Handler();
@@ -132,6 +130,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
     }
 
+    //This displays text in the message field in the original app
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
@@ -147,6 +146,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         }
     });
 
+    //This is for finding peers (we need this)
     WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
         @Override
         public void onPeersAvailable(WifiP2pDeviceList peerList) {
@@ -175,6 +175,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         }
     };
 
+    //When the group is formed, we use this class to make the client and server classes that will be used to communicate.
     WifiP2pManager.ConnectionInfoListener connectionInfoListener = new WifiP2pManager.ConnectionInfoListener() {
         @Override
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
@@ -182,11 +183,13 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
 
             if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
             {
+                identity = "Host";
                 connectionStatus.setText("Host");
                 serverClass = new ServerClass();
                 serverClass.start();
             } else if (wifiP2pInfo.groupFormed)
             {
+                identity = "Client";
                 connectionStatus.setText("Client");
                 clientClass = new ClientClass(groupOwnerAddress);
                 clientClass.start();
@@ -194,6 +197,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         }
     };
 
+    //Dont touch these I think
     @Override
     protected void onResume() {
         super.onResume();
@@ -212,7 +216,8 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         unregisterReceiver(mReceiver);
     }
 
-    public class SendReceive extends Thread{
+    //This class is for sending and receiving messages?
+    public class SendReceive extends Thread implements Serializable{
         private Socket socket;
         private InputStream inputStream;
         private OutputStream outputStream;
@@ -257,9 +262,10 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     }
 
 
-    public class ServerClass extends Thread{
-        Socket socket;
-        ServerSocket serverSocket;
+    //This opens a sendReceive class as a server
+    public class ServerClass extends Thread implements Serializable{
+        public Socket socket;
+        public ServerSocket serverSocket;
 
         @Override
         public void run() {
@@ -276,9 +282,10 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     }
 
 
-    public class ClientClass extends Thread{
-        Socket socket;
-        String hostAdd;
+    //This starts a new socket and sendReceive class as a client
+    public class ClientClass extends Thread implements Serializable{
+        public Socket socket;
+        public String hostAdd;
 
         public ClientClass(InetAddress hostAddress) {
             hostAdd = hostAddress.getHostAddress();
@@ -297,6 +304,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    //This is the onclick for the two buttons we have.
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -326,20 +334,20 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
                         connectionStatus.setText("Failed to start Discovery");
                     }
                 });
-                //Not sure I need this, we might be able to get rid of it.
-            case (R.id.btnOnOff):
-                if (wifiManager.isWifiEnabled()) {
-                    wifiManager.setWifiEnabled(false);
-                    btnOnOff.setText("OFF");
-                } else {
-                    wifiManager.setWifiEnabled(true);
-                    btnOnOff.setText("ON");
-                }
-                break;
+
+                //Used to start the game
             case (R.id.sendButton):
-                String msg = writeMsg.getText().toString();
-                myUpdateClass cl = new myUpdateClass(msg);
-                myHandler.post(cl);
+                //String msg = writeMsg.getText().toString();
+                //myUpdateClass cl = new myUpdateClass(msg);
+                //myHandler.post(cl);
+                Intent singlePlayerIntent = new Intent(this, MultiplayerPage.class);
+                singlePlayerIntent.putExtra("name",identity);
+                singlePlayerIntent.putExtra("client", (Serializable) clientClass);
+                singlePlayerIntent.putExtra("server", (Serializable) serverClass);
+                singlePlayerIntent.putExtra("sendReceive", (Serializable) sendReceive);
+                //Might not be allowed
+
+                startActivity(singlePlayerIntent);
         }
     }
 
