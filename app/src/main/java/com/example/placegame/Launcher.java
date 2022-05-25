@@ -40,9 +40,14 @@ public class Launcher extends AppCompatActivity implements View.OnClickListener{
                 //implement here.
                 Intent singlePlayerIntent = new Intent(this, MainActivity.class);
                 startActivity(singlePlayerIntent);
+                break;
             case (R.id.buttonMPH):
+                Intent multiHostIntent = new Intent(this, MultihostPage.class);
+                startActivity(multiHostIntent);
                 break;
             case (R.id.buttonMPP):
+                Intent multiPlayerIntent = new Intent(this, MultiplayerPage.class);
+                startActivity(multiPlayerIntent);
                 break;
         }
     }
