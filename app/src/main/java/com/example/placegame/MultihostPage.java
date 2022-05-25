@@ -208,7 +208,13 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("YES!" );
+                setContentView(R.layout.activity_multiplayer_page);
+                game = new Game("wifi");
+                initBoard(game,0);
+                score = (TextView) findViewById(R.id.textViewScore);
+                turnToMove = (TextView) findViewById(R.id.textViewTurnToMove);
+                tilesLeft = (TextView) findViewById(R.id.textViewTilesLeft);
+                tilesLeft.setText("Tiles Left: " +  game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
             }
         });
         myHandler = new Handler();
@@ -224,13 +230,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         // Indicates this device's details have changed.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-        //game = new Game("wifi");
-        //initBoard(game,0);
-        //score = (TextView) findViewById(R.id.textViewScore);
-        //turnToMove = (TextView) findViewById(R.id.textViewTurnToMove);
-        //tilesLeft = (TextView) findViewById(R.id.textViewTilesLeft);
-
     }
 
     //This displays text in the message field in the original app
@@ -410,13 +409,39 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     //This is the onclick for the two buttons we have.
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case (R.id.buttonDISCOVER):
+
+        // Checks if game is over before allowing a click
+        if (!game.isGameOver()) {
+            myHandler = new Handler();
+
+            game.getPlayerList().get(game.getTurnToMove()).subtractTile();
 
 
+            int[] coordinates = game.getIJ(view.getId());
+            game.editTile(coordinates, game.getTurnToMove());
 
+            //Calling using player constructor.
+            gameUpdateClass myCl = new gameUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                    game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
+            myHandler.post(myCl);
 
+            //This might because of handler, or the class.
+
+            // Checks if game is over while changing turn
+            if(!game.changeTurn()) {
+                myCl.updateTurn("Game Over!");
+                myCl.updateTiles("Click any square to return to menu.");
+                myHandler.post(myCl);
+            }
+
+            System.out.println(game.returnState());
         }
+        // Returns to menu
+        else {
+            Intent menuIntent = new Intent(this, Launcher.class);
+            startActivity(menuIntent);
+        }
+        //Need to also change the graphics here
     }
 
     //Used for listView
