@@ -9,6 +9,7 @@ public class Player {
     public int horizontalUses;
     public int verticalUses;
     private int totalTilesLeft;
+ `  private int score;
 
     //default constructor
     //Adds basic tiles and variables and instantiates a random color.
