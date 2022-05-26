@@ -59,10 +59,10 @@ public class Game
     //Gets the state of the game
     public String returnState()
     {
-        String state = turnToMove + "?";
+        String state = ""; //Might need ? here.
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                state = state +"|"+ board[i][j].toString();
+                state = state +"l"+ board[i][j].toString();
             }
         }
         return state;

@@ -56,7 +56,6 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     public Button btnSend;
     public Button btnOnOff;
     public ListView listView;
-    public TextView read_msg_box;
     public TextView connectionStatus;
 
     private Game game;
@@ -64,7 +63,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     private TextView turnToMove;
     private TextView tilesLeft;
     private TextView score;
-    private String whoAmI;
+    public int whoAmI;
 
     WifiP2pManager mManager;
     WifiP2pManager.Channel mChannel;
@@ -197,10 +196,10 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
             public void onClick(View view) {
                 if (wifiManager.isWifiEnabled()) {
                     wifiManager.setWifiEnabled(false);
-                    btnOnOff.setText("OFF");
+                    btnOnOff.setText("ON");
                 } else {
                     wifiManager.setWifiEnabled(true);
-                    btnOnOff.setText("ON");
+                    btnOnOff.setText("OFF");
                 }
             }
         });
@@ -236,12 +235,27 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
+
             switch (msg.what)
             {
                 case MESSAGE_READ:
+                    score.setText("In Play");
                     byte[] readBuff= (byte[]) msg.obj;
                     String tempMsg = new String(readBuff, 0, msg.arg1);
-                    read_msg_box.setText(tempMsg);
+                    String[] arr = tempMsg.split("l");
+                    game.changeTurn();
+
+                    //Might need to move this to another handler.
+                    for (int i = 0; i < game.board.length; i++) {
+                        for (int j = 0; j < game.board[i].length; j++) {
+                            System.out.println(arr[i*8+j]);
+                            int x = Integer.parseInt(arr[i*8+j+1]);
+                            if (x == 0)
+                                game.board[i][j].button.setBackgroundColor(Color.parseColor(game.getPlayerList().get(0).playerColor));
+                            else if (x == 1)
+                                game.board[i][j].button.setBackgroundColor(Color.parseColor(game.getPlayerList().get(1).playerColor));
+                        }
+                    }
                     break;
             }
             return true;
@@ -286,13 +300,15 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
             if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner)
             {
                 identity = "Host";
-                connectionStatus.setText("Host");
+                whoAmI = 0;
+                connectionStatus.setText("Player 1 - Host");
                 serverClass = new ServerClass();
                 serverClass.start();
             } else if (wifiP2pInfo.groupFormed)
             {
-                identity = "Client";
-                connectionStatus.setText("Client");
+                identity = "Client"; //Might not be needed anymore, but
+                whoAmI = 1;
+                connectionStatus.setText("Player 2 - Client");
                 clientClass = new ClientClass(groupOwnerAddress);
                 clientClass.start();
             }
@@ -337,7 +353,7 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void run() {
-            byte[] buffer = new byte[1024]; //Might need to be gigger
+            byte[] buffer = new byte[2048]; //Might need to be gigger
             int bytes;
 
             while (socket != null)
@@ -410,9 +426,45 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View view) {
 
+        System.out.println(whoAmI);
+        System.out.println(game.getTurnToMove());
+        if (whoAmI == game.getTurnToMove()) {
+            if (!game.isGameOver()) {
+                myHandler = new Handler();
+
+                game.getPlayerList().get(game.getTurnToMove()).subtractTile();
+
+                int[] coordinates = game.getIJ(view.getId());
+                game.editTile(coordinates, game.getTurnToMove());
+
+                //Calling using player constructor.
+                gameUpdateClass myCl = new gameUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                        game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
+                myHandler.post(myCl);
+
+                //Update villain's class.
+                String msg = game.returnState();
+                myUpdateClass cl = new myUpdateClass(msg);
+                myHandler.post(cl);
+
+                //This might because of handler, or the class.
+
+                // Checks if game is over while changing turn
+                if (!game.changeTurn()) {
+                    myCl.updateTurn("Game Over!");
+                    myCl.updateTiles("Click any square to return to menu.");
+                    myHandler.post(myCl);
+                }
+            }
+        }
+        /*
         // Checks if game is over before allowing a click
         if (!game.isGameOver()) {
             myHandler = new Handler();
+
+            //String msg = "ABC";
+            //myUpdateClass cl = new myUpdateClass(msg);
+            //myHandler.post(cl);
 
             game.getPlayerList().get(game.getTurnToMove()).subtractTile();
 
@@ -435,8 +487,15 @@ public class MultihostPage extends AppCompatActivity implements View.OnClickList
             }
 
             System.out.println(game.returnState());
-        }
+        }*/
+
         // Returns to menu
+        else if (!game.isGameOver())
+        {
+
+        }
+
+        //Returns to menu
         else {
             Intent menuIntent = new Intent(this, Launcher.class);
             startActivity(menuIntent);
