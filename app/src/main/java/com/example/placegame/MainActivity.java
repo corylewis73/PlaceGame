@@ -12,8 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -31,6 +29,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //myUpdateClass is used for updating the GUI
     private class myUpdateClass implements Runnable {
         //Constructor used to make, can run to do things later.
+
+        private Integer score_inner;
+
         private String color, turn = "Turn To Move: ";
         private String tiles = "Tiles Left: ";
         private String regular = "Regular\nx ";
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         private int j = -1;
 
         public myUpdateClass(){}
+
 
         public myUpdateClass(String playerColor, int turnToMove, int tilesLeft, int vali, int valj) {
             color = playerColor;
@@ -58,6 +60,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tiles = "Tiles Left: " + tilesLeft;
         }
 
+        public int[] coordinatesOfComputer() { int arr[] = {i,j}; return arr;};
+
+
         public void updateUses(String  regUses, String horUses, String vertUses) {
             regular = regUses;
             horizontal = horUses;
@@ -72,12 +77,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tiles = tiles_;
         }
 
+        public void updateScore(Integer score_) {
+            score_inner = score_;
+        }
+
         @Override
         public void run() {
             if (i != -1 || j != -1)
                 game.board[i][j].button.setBackgroundColor(Color.parseColor(color));
             turnToMove.setText(turn);
             tilesLeft.setText(tiles);
+
+            score.setText("Score: "+ score_inner);
+
             regularButton.setText(regular);
             horizontalButton.setText(horizontal);
             verticalButton.setText(vertical);
@@ -119,6 +131,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Not sure if best way. This allows it to have tiles left before first click.
         tilesLeft.setText("Tiles Left: " +  game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
+
+        score.setText("Score: " + game.getPlayerList().get(game.getTurnToMove()).getScore());
+
 
         regularButton = (Button) findViewById(R.id.buttonRegular);
         horizontalButton = (Button) findViewById(R.id.buttonHorizontal);
@@ -174,6 +189,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (usesLeft(game.getPlayerList().get(game.getTurnToMove()).tileType)) {
                         int[] coordinates = game.getIJ(view.getId());
 
+                      
+                        //Calling using player constructor.
+                        game.setPlayerForTile(coordinates, game.getTurnToMove());
+
+                        myUpdateClass myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                                game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
+                        System.out.println("score = " + game.getScoreOfPlayer(game.getTurnToMove()));
+                        int score = game.getScoreOfPlayer(game.getTurnToMove());
+            //            myCl.updateScore();
+                        myHandler.post(myCl);
+                      
+                      
                         myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
                                 game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
 
@@ -193,6 +220,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
 
 
+                        //Calling using computer constructor
+                        myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor, game.getTurnToMove(),
+                                game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
+                        game.setPlayerForTile(myCl.coordinatesOfComputer(),game.getTurnToMove());
+                        myCl.updateScore(game.getScoreOfPlayer(game.getTurnToMove()));
+                        myHandler.post(myCl);
+                        myCl.updateScore(score);
+                      
                         Random rand = new Random();
 
                         int a = 0;

@@ -9,6 +9,9 @@ public class Player {
     public int horizontalUses;
     public int verticalUses;
     private int totalTilesLeft;
+
+    private int score;
+
     private String myName;
 
     // 0 = regular, 1 = horizontal, 2 = vertical
@@ -41,6 +44,13 @@ public class Player {
         Random obj = new Random();
         int rand_num = obj.nextInt(0xffffff + 1);
         playerColor = String.format("#%06x", rand_num);
+    }
+ 	public void setScore(Integer score) {
+        this.score = score;
+    }
+
+    public int getScore(){
+        return score;
     }
 
     //This method is to see how many moves a player has left.
