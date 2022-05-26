@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Constructor used to make, can run to do things later.
         private String color, turn = "Turn To Move: ";
         private String tiles = "Tiles Left: ";
+        private String scoreString = "";
         private String regular = "Regular\nx ";
         private String horizontal = "Horizontal\nx ";
         private String vertical = "Vertical\nx ";
@@ -72,6 +73,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tiles = tiles_;
         }
 
+        public void updateScore(String s) {
+            scoreString = s;
+        }
+
         @Override
         public void run() {
             if (i != -1 || j != -1)
@@ -81,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             regularButton.setText(regular);
             horizontalButton.setText(horizontal);
             verticalButton.setText(vertical);
+            score.setText(scoreString);
 
             // Sets the tile selecting buttons' colors
             switch (game.getPlayerList().get(game.getTurnToMove()).tileType) {
@@ -189,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if(!game.changeTurn()) {
                             myCl.updateTurn("Game Over!");
                             myCl.updateTiles("Tap any square to return to menu.");
+                            myCl.updateScore("Score: " + getFinalScore());
                             myHandler.post(myCl);
                         }
 
@@ -224,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if(!game.changeTurn()) {
                             myCl.updateTurn("Game Over!");
                             myCl.updateTiles("Click any square to return.");
+                            myCl.updateScore("Score: " + getFinalScore());
                             myHandler.post(myCl);
                         }
                         myCl.updateUses("Regular\nx " + game.getPlayerList().get(game.getTurnToMove()).regularUses,
@@ -239,6 +247,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent menuIntent = new Intent(this, Launcher.class);
             startActivity(menuIntent);
         }
+    }
+
+    private int getFinalScore() {
+        int scoreCount = 0;
+        for (int i = 0; i < game.board.length; i++) {
+            for (int j = 0; j < game.board[i].length; j++) {
+                if (game.board[i][j].getPlayerOwned() == 0)
+                    scoreCount++;
+                else if (game.board[i][j].getPlayerOwned() == 1)
+                    scoreCount--;
+            }
+        }
+        return scoreCount;
     }
 
     // Helper function that checks if the tile type selected has uses left
@@ -269,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case 0:
                 game.getPlayerList().get(game.getTurnToMove()).regularUses--;
                 myHandler.post(myCl);
+                game.board[coordinates[0]][coordinates[1]].setPlayerOwned(game.getTurnToMove());
                 break;
 
             case 1:
@@ -277,6 +299,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
                             game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], i);
                     myHandler.post(myCl);
+                    game.board[coordinates[0]][i].setPlayerOwned(game.getTurnToMove());
                 }
                 break;
 
@@ -286,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
                             game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), i, coordinates[1]);
                     myHandler.post(myCl);
+                    game.board[i][coordinates[1]].setPlayerOwned(game.getTurnToMove());
                 }
                 break;
         }
