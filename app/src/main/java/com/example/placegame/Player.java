@@ -9,6 +9,7 @@ public class Player {
     public int horizontalUses;
     public int verticalUses;
     private int totalTilesLeft;
+    private String myName;
 
     // 0 = regular, 1 = horizontal, 2 = vertical
     public int tileType = 0;
@@ -28,6 +29,20 @@ public class Player {
         playerColor = String.format("#%06x", rand_num);
     }
 
+    public Player(String name)
+    {
+        myName = name;
+        regularUses = 5;
+        horizontalUses = 1;
+        verticalUses = 1;
+        totalTilesLeft = 7;
+
+        //Pick a random color for the player
+        Random obj = new Random();
+        int rand_num = obj.nextInt(0xffffff + 1);
+        playerColor = String.format("#%06x", rand_num);
+    }
+
     //This method is to see how many moves a player has left.
     public int tilesLeft()
     {
@@ -38,4 +53,7 @@ public class Player {
     {
         totalTilesLeft--;
     }
+
+    //Helper function
+    public String getMyName(){return myName;}
 }
