@@ -17,7 +17,6 @@ public class Launcher extends AppCompatActivity implements View.OnClickListener{
 
     private Button singlePlayer;
     private Button multiplayerHost;
-    private Button multiplayerPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +25,8 @@ public class Launcher extends AppCompatActivity implements View.OnClickListener{
 
         singlePlayer = (Button) findViewById(R.id.buttonSP);
         multiplayerHost = (Button) findViewById(R.id.buttonMPH);
-        multiplayerPlayer = (Button) findViewById(R.id.buttonMPP);
         singlePlayer.setOnClickListener(this);
         multiplayerHost.setOnClickListener(this);
-        multiplayerPlayer.setOnClickListener(this);
 
     }
 
@@ -45,10 +42,7 @@ public class Launcher extends AppCompatActivity implements View.OnClickListener{
                 Intent multiHostIntent = new Intent(this, MultihostPage.class);
                 startActivity(multiHostIntent);
                 break;
-            case (R.id.buttonMPP):
-                Intent multiPlayerIntent = new Intent(this, MultiplayerPage.class);
-                startActivity(multiPlayerIntent);
-                break;
+
         }
     }
 }
