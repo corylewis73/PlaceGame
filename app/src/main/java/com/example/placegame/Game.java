@@ -75,6 +75,25 @@ public class Game
         return null;
     }
 
+
+	  public int getScoreOfPlayer(int playerVal) {
+        int sum = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if(board[i][j].getPlayerOwned() == playerVal) {
+                    sum++;
+                }
+            }
+        }
+        return sum;
+    }
+
+	 public void setPlayerForTile(int [] arr, int playerVal) {
+        int i = arr[0];
+        int j = arr[1];
+        board[i][j].setPlayerOwned(playerVal);
+    }
+
     //Changes the color of a tile.
     //Might be outdated at this point.
     public void editTile(int number)
