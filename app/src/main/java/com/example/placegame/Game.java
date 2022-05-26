@@ -24,6 +24,15 @@ public class Game
         turnToMove = 0;
     }
 
+
+    public Game(String name)
+    {
+        Player playerOne = playerOne = new Player("Host");
+        Player playerTwo = playerTwo = new Player("Client");
+        playerList.add(playerOne);
+        playerList.add(playerTwo);
+    }
+
     //Allows any number of players
     public Game(int players) {
         for (int i=0;i<players;i++) {
@@ -46,6 +55,19 @@ public class Game
             playerList.add(newPlayer);
         }
     }
+
+    //Gets the state of the game
+    public String returnState()
+    {
+        String state = ""; //Might need ? here.
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                state = state +"l"+ board[i][j].toString();
+            }
+        }
+        return state;
+    }
+
 
     //Used to change the turn of the game. Checks to see if the game is over before the switch
     //returns true if successful, false otherwise.
@@ -75,7 +97,6 @@ public class Game
         return null;
     }
 
-
 	  public int getScoreOfPlayer(int playerVal) {
         int sum = 0;
         for (int i = 0; i < board.length; i++) {
@@ -95,19 +116,13 @@ public class Game
     }
 
     //Changes the color of a tile.
+
+    //Changes the ID of a tile of a tile.
+
     //Might be outdated at this point.
-    public void editTile(int number)
+    public void editTile(int [] coordinates, int value)
     {
-        //Fix this to make it more efficient
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                if (number == board[i][j].button.getId()) {
-                    board[i][j].button.setBackgroundColor(Color.parseColor(playerList.get(turnToMove).playerColor));
-                }
-            }
-        }
-        //This will break at the end, fix this later.
-        changeTurn();
+        board[coordinates[0]][coordinates[1]].setPlayerOwned(value);
     }
 
     public int getTurnToMove() {

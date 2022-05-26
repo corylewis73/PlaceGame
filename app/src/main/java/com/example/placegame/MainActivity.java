@@ -24,14 +24,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tilesLeft;
     private TextView score;
     private Handler myHandler;
+    private Button regularButton, horizontalButton, verticalButton;
 
     //myUpdateClass is used for updating the GUI
     private class myUpdateClass implements Runnable {
         //Constructor used to make, can run to do things later.
-        private String color, turn = "Turn To Move: ", tiles = "Tiles Left: ";
+
         private Integer score_inner;
-        private int i;
-        private int j;
+
+        private String color, turn = "Turn To Move: ";
+        private String tiles = "Tiles Left: ";
+        private String regular = "Regular\nx ";
+        private String horizontal = "Horizontal\nx ";
+        private String vertical = "Vertical\nx ";
+        private int i = -1;
+        private int j = -1;
+
+        public myUpdateClass(){}
+
 
         public myUpdateClass(String playerColor, int turnToMove, int tilesLeft, int vali, int valj) {
             color = playerColor;
@@ -49,7 +59,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             turn = "Turn To Move: " + turnToMove;
             tiles = "Tiles Left: " + tilesLeft;
         }
+
         public int[] coordinatesOfComputer() { int arr[] = {i,j}; return arr;};
+
+
+        public void updateUses(String  regUses, String horUses, String vertUses) {
+            regular = regUses;
+            horizontal = horUses;
+            vertical = vertUses;
+        }
+
         public void updateTurn(String turn_) {
             turn = turn_;
         }
@@ -64,10 +83,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void run() {
-            game.board[i][j].button.setBackgroundColor(Color.parseColor(color));
+            if (i != -1 || j != -1)
+                game.board[i][j].button.setBackgroundColor(Color.parseColor(color));
             turnToMove.setText(turn);
             tilesLeft.setText(tiles);
+
             score.setText("Score: "+ score_inner);
+
+            regularButton.setText(regular);
+            horizontalButton.setText(horizontal);
+            verticalButton.setText(vertical);
+
+            // Sets the tile selecting buttons' colors
+            switch (game.getPlayerList().get(game.getTurnToMove()).tileType) {
+                case 0:
+                    regularButton.setBackgroundColor(Color.parseColor("#ffffff"));
+                    horizontalButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    verticalButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    break;
+
+                case 1:
+                    regularButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    horizontalButton.setBackgroundColor(Color.parseColor("#ffffff"));
+                    verticalButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    break;
+
+                case 2:
+                    regularButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    horizontalButton.setBackgroundColor(Color.parseColor("#ff6600"));
+                    verticalButton.setBackgroundColor(Color.parseColor("#ffffff"));
+                    break;
+            }
         }
     }
 
@@ -85,7 +131,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Not sure if best way. This allows it to have tiles left before first click.
         tilesLeft.setText("Tiles Left: " +  game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
+
         score.setText("Score: " + game.getPlayerList().get(game.getTurnToMove()).getScore());
+
+
+        regularButton = (Button) findViewById(R.id.buttonRegular);
+        horizontalButton = (Button) findViewById(R.id.buttonHorizontal);
+        verticalButton = (Button) findViewById(R.id.buttonVertical);
+
+        regularButton.setOnClickListener(this);
+        horizontalButton.setOnClickListener(this);
+        verticalButton.setOnClickListener(this);
     }
 
     @Override
@@ -100,56 +156,174 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-
         // Checks if game is over before allowing a click
         if (!game.isGameOver()) {
+
             myHandler = new Handler();
 
-            game.getPlayerList().get(game.getTurnToMove()).subtractTile();
+            myUpdateClass myCl = new myUpdateClass();
 
-            int[] coordinates = game.getIJ(view.getId());
+            myCl.updateUses("Regular\nx " + game.getPlayerList().get(game.getTurnToMove()).regularUses,
+                    "Horizontal\nx " + game.getPlayerList().get(game.getTurnToMove()).horizontalUses,
+                    "Vertical\nx " + game.getPlayerList().get(game.getTurnToMove()).verticalUses);
 
-            //Calling using player constructor.
-            game.setPlayerForTile(coordinates, game.getTurnToMove());
+            // Select tile type
+            switch (view.getId()) {
+                case R.id.buttonRegular:
+                    game.getPlayerList().get(game.getTurnToMove()).tileType = 0;
+                    myHandler.post(myCl);
+                    break;
 
-            myUpdateClass myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
-                    game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
-            System.out.println("score = " + game.getScoreOfPlayer(game.getTurnToMove()));
-            int score = game.getScoreOfPlayer(game.getTurnToMove());
-//            myCl.updateScore();
-            myHandler.post(myCl);
+                case R.id.buttonHorizontal:
+                    game.getPlayerList().get(game.getTurnToMove()).tileType = 1;
+                    myHandler.post(myCl);
+                    break;
 
-            // Checks if game is over while changing turn
-            if(!game.changeTurn()) {
-                myCl.updateTurn("Game Over!");
-                myCl.updateTiles("Click any square to return to menu.");
-                myHandler.post(myCl);
+                case R.id.buttonVertical:
+                    game.getPlayerList().get(game.getTurnToMove()).tileType = 2;
+                    myHandler.post(myCl);
+                    break;
+
+                default:
+                    // Checks if currently selected tile has uses left
+                    if (usesLeft(game.getPlayerList().get(game.getTurnToMove()).tileType)) {
+                        int[] coordinates = game.getIJ(view.getId());
+
+                      
+                        //Calling using player constructor.
+                        game.setPlayerForTile(coordinates, game.getTurnToMove());
+
+                        myUpdateClass myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                                game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
+                        System.out.println("score = " + game.getScoreOfPlayer(game.getTurnToMove()));
+                        int score = game.getScoreOfPlayer(game.getTurnToMove());
+            //            myCl.updateScore();
+                        myHandler.post(myCl);
+                      
+                      
+                        myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                                game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
+
+                        clickBoard(myCl, coordinates);
+
+                        game.getPlayerList().get(game.getTurnToMove()).subtractTile();
+                        myCl.updateUses("Regular\nx " + game.getPlayerList().get(game.getTurnToMove()).regularUses,
+                                "Horizontal\nx " + game.getPlayerList().get(game.getTurnToMove()).horizontalUses,
+                                "Vertical\nx " + game.getPlayerList().get(game.getTurnToMove()).verticalUses);
+                        myHandler.post(myCl);
+
+                        // Checks if game is over while changing turn
+                        if(!game.changeTurn()) {
+                            myCl.updateTurn("Game Over!");
+                            myCl.updateTiles("Tap any square to return to menu.");
+                            myHandler.post(myCl);
+                        }
+
+
+                        //Calling using computer constructor
+                        myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor, game.getTurnToMove(),
+                                game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
+                        game.setPlayerForTile(myCl.coordinatesOfComputer(),game.getTurnToMove());
+                        myCl.updateScore(game.getScoreOfPlayer(game.getTurnToMove()));
+                        myHandler.post(myCl);
+                        myCl.updateScore(score);
+                      
+                        Random rand = new Random();
+
+                        int a = 0;
+                        boolean isGood = false;
+                        while(!isGood) {
+                            game.getPlayerList().get(game.getTurnToMove()).tileType = rand.nextInt(3);
+                            isGood = usesLeft(game.getPlayerList().get(game.getTurnToMove()).tileType);
+                            a++;
+
+                            // Check all of them is RNG is taking too long
+                            if (a == 10) {
+                                for (int b = 0; !isGood; b++) {
+                                    game.getPlayerList().get(game.getTurnToMove()).tileType = b;
+                                    isGood = usesLeft(game.getPlayerList().get(game.getTurnToMove()).tileType);
+                                }
+                            }
+                        }
+
+                        coordinates[0] = rand.nextInt((7-0)+1);
+                        coordinates[1] = rand.nextInt((7-0)+1);
+                        myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor, game.getTurnToMove(),
+                                game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], coordinates[1]);
+
+                        clickBoard(myCl, coordinates);
+
+                        game.getPlayerList().get(game.getTurnToMove()).subtractTile();
+
+                        // Checks if game is over while changing turn
+                        if(!game.changeTurn()) {
+                            myCl.updateTurn("Game Over!");
+                            myCl.updateTiles("Click any square to return.");
+                            myHandler.post(myCl);
+                        }
+                        myCl.updateUses("Regular\nx " + game.getPlayerList().get(game.getTurnToMove()).regularUses,
+                                "Horizontal\nx " + game.getPlayerList().get(game.getTurnToMove()).horizontalUses,
+                                "Vertical\nx " + game.getPlayerList().get(game.getTurnToMove()).verticalUses);
+                        myHandler.post(myCl);
+                    }
+                    break;
             }
-
-            game.getPlayerList().get(game.getTurnToMove()).subtractTile();
-
-            //Calling using computer constructor
-            myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor, game.getTurnToMove(),
-                    game.getPlayerList().get(game.getTurnToMove()).tilesLeft());
-            game.setPlayerForTile(myCl.coordinatesOfComputer(),game.getTurnToMove());
-            myCl.updateScore(game.getScoreOfPlayer(game.getTurnToMove()));
-            myHandler.post(myCl);
-            myCl.updateScore(score);
-            // Checks if game is over while changing turn
-            if(!game.changeTurn()) {
-                myCl.updateTurn("Game Over!");
-                myCl.updateTiles("Click any square to return.");
-                myHandler.post(myCl);
-            }
-
         }
         // Returns to menu
         else {
             Intent menuIntent = new Intent(this, Launcher.class);
             startActivity(menuIntent);
         }
-        //Need to also change the graphics here
+    }
 
+    // Helper function that checks if the tile type selected has uses left
+    private boolean usesLeft(int type) {
+        switch (type) {
+            case 0:
+                if (game.getPlayerList().get(game.getTurnToMove()).regularUses == 0)
+                    return false;
+                break;
+
+            case 1:
+                if (game.getPlayerList().get(game.getTurnToMove()).horizontalUses == 0)
+                    return false;
+                break;
+
+            case 2:
+                if (game.getPlayerList().get(game.getTurnToMove()).verticalUses == 0)
+                    return false;
+                break;
+        }
+        return true;
+    }
+
+    // Helper function for board clicking logic
+    private void clickBoard(myUpdateClass myCl, int[] coordinates) {
+        // Click logic depending on which tile type selected
+        switch (game.getPlayerList().get(game.getTurnToMove()).tileType) {
+            case 0:
+                game.getPlayerList().get(game.getTurnToMove()).regularUses--;
+                myHandler.post(myCl);
+                break;
+
+            case 1:
+                game.getPlayerList().get(game.getTurnToMove()).horizontalUses--;
+                for (int i = 0; i < game.board[coordinates[0]].length; i++) {
+                    myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                            game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), coordinates[0], i);
+                    myHandler.post(myCl);
+                }
+                break;
+
+            case 2:
+                game.getPlayerList().get(game.getTurnToMove()).verticalUses--;
+                for (int i = 0; i < game.board.length; i++) {
+                    myCl = new myUpdateClass(game.getPlayerList().get(game.getTurnToMove()).playerColor,
+                            game.getTurnToMove(), game.getPlayerList().get(game.getTurnToMove()).tilesLeft(), i, coordinates[1]);
+                    myHandler.post(myCl);
+                }
+                break;
+        }
     }
 
     // Constructs board based off of map selected. Can add more cases for more maps later
